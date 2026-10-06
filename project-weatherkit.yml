@@ -1,0 +1,9 @@
+# Same app, but using Apple WeatherKit. Needs a paid Apple Developer account.
+# Generate with: xcodegen generate --spec project-weatherkit.yml
+include: [project.yml]
+targets:
+  WClock:
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: WEATHERKIT
+        CODE_SIGN_ENTITLEMENTS: WClock/WClock.entitlements
