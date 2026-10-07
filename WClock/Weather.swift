@@ -36,6 +36,14 @@ struct WeatherSnapshot: Equatable, Codable {
     }
 }
 
+/// Credit that must be shown for the weather source (WeatherKit requires Apple's mark and a legal link).
+struct WeatherAttribution {
+    let name: String
+    /// Logo for use on a dark background, if the provider requires one.
+    let markURL: URL?
+    let legalURL: URL
+}
+
 /// Weather from Apple WeatherKit when built with the WEATHERKIT flag (see project-weatherkit.yml),
 /// otherwise from Open-Meteo (free, no API key). Apple's Weather app itself has no public API.
 enum WeatherProvider {
@@ -44,6 +52,15 @@ enum WeatherProvider {
         return try await fetchWeatherKit(latitude: latitude, longitude: longitude)
         #else
         return try await fetchOpenMeteo(latitude: latitude, longitude: longitude)
+        #endif
+    }
+
+    static func attribution() async -> WeatherAttribution? {
+        #if WEATHERKIT
+        guard let a = try? await WeatherKit.WeatherService.shared.attribution else { return nil }
+        return WeatherAttribution(name: a.serviceName, markURL: a.combinedMarkLightURL, legalURL: a.legalPageURL)
+        #else
+        return WeatherAttribution(name: "Open-Meteo.com", markURL: nil, legalURL: URL(string: "https://open-meteo.com/")!)
         #endif
     }
 

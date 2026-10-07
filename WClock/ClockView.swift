@@ -20,6 +20,7 @@ private struct Palette {
 struct ClockView: View {
     @StateObject private var model = ClockModel()
     @Environment(\.scenePhase) private var scenePhase
+    @State private var showingAbout = false
 
     private static let uses12Hour = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: .current)?.contains("a") ?? false
 
@@ -47,6 +48,7 @@ struct ClockView: View {
         .overlay(alignment: .topTrailing) { optionsMenu }
         .contentShape(Rectangle())
         .onTapGesture { if model.isNight && model.dimAtNight { model.toggleBoost() } }
+        .sheet(isPresented: $showingAbout) { AboutView() }
         .statusBarHidden(true)
         .persistentSystemOverlays(.hidden)
         .onChange(of: scenePhase, initial: true) { _, phase in
@@ -63,6 +65,7 @@ struct ClockView: View {
                 ForEach(TempUnit.allCases) { Text($0.title).tag($0) }
             }
             Toggle("Dim screen at night", isOn: $model.dimAtNight)
+            Button("About", systemImage: "info.circle") { showingAbout = true }
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 22, weight: .semibold))
